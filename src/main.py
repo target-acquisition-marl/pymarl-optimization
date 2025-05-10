@@ -13,7 +13,7 @@ import yaml
 
 from run import run
 
-SETTINGS['CAPTURE_MODE'] = "fd" # set to "no" if you want to see stdout/stderr in console
+SETTINGS['CAPTURE_MODE'] = "fd"  # set to "no" if you want to see stdout/stderr in console
 logger = get_logger()
 
 ex = Experiment("pymarl")
@@ -96,4 +96,3 @@ if __name__ == '__main__':
     ex.observers.append(FileStorageObserver.create(file_obs_path))
 
     ex.run_commandline(params)
-

@@ -1,0 +1,5 @@
+3rdparty
+__pycache__
+results
+wandb
+tb_logs/

@@ -41,6 +41,12 @@ def run(_run, _config, _log):
         tb_exp_direc = os.path.join(tb_logs_direc, "{}").format(unique_token)
         logger.setup_tb(tb_exp_direc)
 
+    # setup wandb
+    if args.use_wandb:
+        scenario_name = '{}_{}'.format(args.env_args['map_name'],unique_token)
+        project_name = args.project_name
+        logger.setup_wandb(project_name, scenario_name)
+
     # sacred is on by default
     logger.setup_sacred(_run)
 
