@@ -14,6 +14,7 @@ class MaskedQMixer(nn.Module):
 
         self.embed_dim = args.mixing_embed_dim
         self.mask_prob = getattr(args, "mask_prob", 0.0)
+        self.is_sticky = args.is_sticky
 
         if getattr(args, "hypernet_layers", 1) == 1:
             self.hyper_w_1 = nn.Linear(self.state_dim, self.embed_dim * self.n_agents)
@@ -40,15 +41,19 @@ class MaskedQMixer(nn.Module):
                                nn.Linear(self.embed_dim, 1))
 
     def forward(self, agent_qs, states):
-        bs = agent_qs.size(0)
+        bs, ep_len, _ = agent_qs.shape
         states = states.reshape(-1, self.state_dim)
-        agent_qs = agent_qs.view(-1, 1, self.n_agents)
-
         # Generate a random mask with probability mask_prob
         if self.mask_prob > 0.0 and self.training:
-            mask = (th.rand(agent_qs.shape, device=agent_qs.device) > self.mask_prob).float()
-            # print(f"mask: {mask}")
+            if self.is_sticky:
+                episode_mask = (th.rand(bs, self.n_agents, device=agent_qs.device) > self.mask_prob).float()
+                mask = episode_mask.unsqueeze(1).expand(-1, ep_len, -1)
+            else:
+                mask = (th.rand(agent_qs.shape, device=agent_qs.device) > self.mask_prob).float()
+            # print(f"is sticky {self.is_sticky}")
+            # print(f"sk: {mask}")
             agent_qs = agent_qs * mask
+        agent_qs = agent_qs.view(-1, 1, self.n_agents)
 
         # First layer
         w1 = th.abs(self.hyper_w_1(states))

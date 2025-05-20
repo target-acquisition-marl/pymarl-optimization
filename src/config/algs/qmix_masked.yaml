@@ -25,4 +25,7 @@ hypernet_embed: 64
 # probability of masking an agent a
 mask_prob: 0.3
 
+# same mask for in the same episode
+is_sticky: False
+
 name: "qmix_masked"

@@ -5,32 +5,9 @@
 ```
 
 # Python MARL framework
-
-PyMARL is [WhiRL](http://whirl.cs.ox.ac.uk)'s framework for deep multi-agent reinforcement learning and includes implementations of the following algorithms:
-- [**QMIX**: QMIX: Monotonic Value Function Factorisation for Deep Multi-Agent Reinforcement Learning](https://arxiv.org/abs/1803.11485)
-- [**COMA**: Counterfactual Multi-Agent Policy Gradients](https://arxiv.org/abs/1705.08926)
-- [**VDN**: Value-Decomposition Networks For Cooperative Multi-Agent Learning](https://arxiv.org/abs/1706.05296) 
-- [**IQL**: Independent Q-Learning](https://arxiv.org/abs/1511.08779)
-- [**QTRAN**: QTRAN: Learning to Factorize with Transformation for Cooperative Multi-Agent Reinforcement Learning](https://arxiv.org/abs/1905.05408)
+This is a fork of PyMARL with modifications to support agent-level masking in the mixer network (in QMIX for now).
 
 PyMARL is written in PyTorch and uses [SMAC](https://github.com/oxwhirl/smac) as its environment.
-
-## Installation instructions
-
-Build the Dockerfile using 
-```shell
-cd docker
-bash build.sh
-```
-
-Set up StarCraft II and SMAC:
-```shell
-bash install_sc2.sh
-```
-
-This will download SC2 into the 3rdparty folder and copy the maps necessary to run over.
-
-The requirements.txt file can be used to install the necessary packages into a virtual environment (not recomended).
 
 ## Run an experiment 
 
@@ -44,14 +21,26 @@ They are all located in `src/config`.
 `--config` refers to the config files in `src/config/algs`
 `--env-config` refers to the config files in `src/config/envs`
 
-To run experiments using the Docker container:
-```shell
-bash run.sh $GPU python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=2s3z
-```
-
 All results will be stored in the `Results` folder.
 
 The previous config files used for the SMAC Beta have the suffix `_beta`.
+
+# Modifications
+
+## Random masking QMix:
+
+Introduced masking mechanisms for agent Q-values before mixing:
+  - random masking: agents' Q-values are randomly masked at each timestep with a given probability.
+
+```shell
+python3 src/main.py --config=qmix_masked --env-config=sc2 with env_args.map_name=2s3z mask_prob=0.2
+```
+  - sticky masking: each episode has a fixed binary mask applied across all its timesteps. To do so, simply use the is_sticky flag
+
+```shell
+python3 src/main.py --config=qmix_masked --env-config=sc2 with env_args.map_name=2s3z mask_prob=0.2 is_sticky=True
+```
+
 
 ## Saving and loading learnt models
 
