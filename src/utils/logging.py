@@ -18,12 +18,13 @@ class Logger:
     def setup_tb(self, directory_name):
         # Import here so it doesn't have to be installed if you don't use it
         from tensorboard_logger import configure, log_value
+
         configure(directory_name)
         self.tb_logger = log_value
         self.use_tb = True
 
-    def setup_wandb(self, project_name, scenario_name) :
-        print('setup wandb')
+    def setup_wandb(self, project_name, scenario_name):
+        print("setup wandb")
         wandb.init(project=project_name)
         wandb.run.name = scenario_name
         wandb.run.save()
@@ -51,9 +52,11 @@ class Logger:
                 self.sacred_info[key] = [value]
 
     def print_recent_stats(self):
-        log_str = "Recent Stats | t_env: {:>10} | Episode: {:>8}\n".format(*self.stats["episode"][-1])
+        log_str = "Recent Stats | t_env: {:>10} | Episode: {:>8}\n".format(
+            *self.stats["episode"][-1]
+        )
         i = 0
-        for (k, v) in sorted(self.stats.items()):
+        for k, v in sorted(self.stats.items()):
             if k == "episode":
                 continue
             i += 1
@@ -69,8 +72,10 @@ def get_logger():
     logger = logging.getLogger()
     logger.handlers = []
     ch = logging.StreamHandler()
-    formatter = logging.Formatter('[%(levelname)s %(asctime)s] %(name)s %(message)s', '%H:%M:%S')
+    formatter = logging.Formatter(
+        "[%(levelname)s %(asctime)s] %(name)s %(message)s", "%H:%M:%S"
+    )
     ch.setFormatter(formatter)
     logger.addHandler(ch)
-    logger.setLevel('DEBUG')
+    logger.setLevel("DEBUG")
     return logger

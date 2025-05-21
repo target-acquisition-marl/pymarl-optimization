@@ -21,12 +21,16 @@ class MaskedQMixer(nn.Module):
             self.hyper_w_final = nn.Linear(self.state_dim, self.embed_dim)
         elif getattr(args, "hypernet_layers", 1) == 2:
             hypernet_embed = self.args.hypernet_embed
-            self.hyper_w_1 = nn.Sequential(nn.Linear(self.state_dim, hypernet_embed),
-                                           nn.ReLU(),
-                                           nn.Linear(hypernet_embed, self.embed_dim * self.n_agents))
-            self.hyper_w_final = nn.Sequential(nn.Linear(self.state_dim, hypernet_embed),
-                                           nn.ReLU(),
-                                           nn.Linear(hypernet_embed, self.embed_dim))
+            self.hyper_w_1 = nn.Sequential(
+                nn.Linear(self.state_dim, hypernet_embed),
+                nn.ReLU(),
+                nn.Linear(hypernet_embed, self.embed_dim * self.n_agents),
+            )
+            self.hyper_w_final = nn.Sequential(
+                nn.Linear(self.state_dim, hypernet_embed),
+                nn.ReLU(),
+                nn.Linear(hypernet_embed, self.embed_dim),
+            )
         elif getattr(args, "hypernet_layers", 1) > 2:
             raise Exception("Sorry >2 hypernet layers is not implemented!")
         else:
@@ -36,9 +40,11 @@ class MaskedQMixer(nn.Module):
         self.hyper_b_1 = nn.Linear(self.state_dim, self.embed_dim)
 
         # V(s) instead of a bias for the last layers
-        self.V = nn.Sequential(nn.Linear(self.state_dim, self.embed_dim),
-                               nn.ReLU(),
-                               nn.Linear(self.embed_dim, 1))
+        self.V = nn.Sequential(
+            nn.Linear(self.state_dim, self.embed_dim),
+            nn.ReLU(),
+            nn.Linear(self.embed_dim, 1),
+        )
 
     def forward(self, agent_qs, states):
         bs, ep_len, _ = agent_qs.shape
@@ -46,10 +52,14 @@ class MaskedQMixer(nn.Module):
         # Generate a random mask with probability mask_prob
         if self.mask_prob > 0.0 and self.training:
             if self.is_sticky:
-                episode_mask = (th.rand(bs, self.n_agents, device=agent_qs.device) > self.mask_prob).float()
+                episode_mask = (
+                    th.rand(bs, self.n_agents, device=agent_qs.device) > self.mask_prob
+                ).float()
                 mask = episode_mask.unsqueeze(1).expand(-1, ep_len, -1)
             else:
-                mask = (th.rand(agent_qs.shape, device=agent_qs.device) > self.mask_prob).float()
+                mask = (
+                    th.rand(agent_qs.shape, device=agent_qs.device) > self.mask_prob
+                ).float()
             # print(f"is sticky {self.is_sticky}")
             # print(f"sk: {mask}")
             agent_qs = agent_qs * mask
