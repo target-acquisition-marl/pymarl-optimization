@@ -41,6 +41,43 @@ python3 src/main.py --config=qmix_masked --env-config=sc2 with env_args.map_name
 python3 src/main.py --config=qmix_masked --env-config=sc2 with env_args.map_name=2s3z mask_prob=0.2 is_sticky=True
 ```
 
+Sure! Here's a concise markdown section you can add to your README to explain this YAML-based queued experiment runner feature:
+
+## Experiment Queue with YAML Configuration
+
+This project includes a simple experiment queue system that runs multiple ML experiments **with controlled concurrency**.
+
+### How It Works
+
+- **Experiment configurations** are stored in a `queue.yaml` file in a clean, human-readable format.
+- The runner script `run_queue.sh` reads this YAML file, converts each experiment config to a full command, and runs up to `MAX_JOBS` experiments in parallel.
+- Once a running experiment finishes, the next one in the queue starts automatically.
+- All experiment outputs are logged into the `logs/` directory, each with a timestamped log file.
+- The script uses `nohup` so it continues running even if the terminal session is closed.
+
+### Example `queue.yaml`
+
+```yaml
+experiments:
+  - config: qmix_masked
+    map_name: 1c3s5z
+    mask_prob: 0.6
+    is_sticky: true
+
+  - config: qmix_masked
+    map_name: 2s3z
+    mask_prob: 0.4
+    is_sticky: false
+```
+
+### Running Experiments
+
+Run the queue with:
+
+```bash
+chmod +x run_queue.sh
+nohup ./run_queue.sh $MAX_JOBS &
+```
 
 ## Saving and loading learnt models
 

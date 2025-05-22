@@ -1,0 +1,15 @@
+experiments:
+  - config: qmix_masked
+    map_name: 1c3s5z
+    mask_prob: 0
+    is_sticky: false
+
+  - config: qmix_masked
+    map_name: 1c3s5z
+    mask_prob: 0.6
+    is_sticky: false
+
+  - config: qmix_masked
+    map_name: 1c3s5z
+    mask_prob: 0.6
+    is_sticky: true

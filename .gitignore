@@ -3,5 +3,6 @@ __pycache__
 results
 wandb
 tb_logs/
-*.log/
+*.log
+queue.yaml
 *.out
