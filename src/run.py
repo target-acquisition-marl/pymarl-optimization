@@ -46,8 +46,8 @@ def run(_run, _config, _log):
     # setup wandb
     if args.use_wandb:
         # scenario_name = '{}_{}'.format(args.env_args['map_name'], unique_token)
-        scenario_name = "{}_{}%masking_sticky:{}_{}".format(
-            args.env_args["map_name"], args.mask_prob, args.is_sticky, unique_token
+        scenario_name = "{}_{}%masking_sticky:{}_fixed:{}_{}".format(
+            args.env_args["map_name"], args.mask_prob, args.is_sticky, args.is_fixed, unique_token
         )
         project_name = args.project_name
         logger.setup_wandb(project_name, scenario_name)
