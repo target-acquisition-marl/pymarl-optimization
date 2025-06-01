@@ -28,4 +28,7 @@ mask_prob: 0.3
 # same mask for in the same episode
 is_sticky: False
 
+# same mask for in the same episode
+is_fixed: False
+
 name: "qmix_masked"

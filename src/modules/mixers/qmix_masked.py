@@ -15,6 +15,7 @@ class MaskedQMixer(nn.Module):
         self.embed_dim = args.mixing_embed_dim
         self.mask_prob = getattr(args, "mask_prob", 0.0)
         self.is_sticky = args.is_sticky
+        self.is_fixed = args.is_fixed
 
         if getattr(args, "hypernet_layers", 1) == 1:
             self.hyper_w_1 = nn.Linear(self.state_dim, self.embed_dim * self.n_agents)
@@ -51,18 +52,37 @@ class MaskedQMixer(nn.Module):
         states = states.reshape(-1, self.state_dim)
         # Generate a random mask with probability mask_prob
         if self.mask_prob > 0.0 and self.training:
-            if self.is_sticky:
-                episode_mask = (
-                    th.rand(bs, self.n_agents, device=agent_qs.device) > self.mask_prob
-                ).float()
-                mask = episode_mask.unsqueeze(1).expand(-1, ep_len, -1)
+            if self.is_fixed:
+                # Fixed-k masking: mask exactly k agents (based on mask_prob)
+                mask_k = max(1, int(round(self.mask_prob * self.n_agents)))
+                if self.is_sticky:
+                    episode_mask = th.ones(bs, self.n_agents, device=agent_qs.device)
+                    for b in range(bs):
+                        idx = th.randperm(self.n_agents)[:mask_k]
+                        episode_mask[b, idx] = 0.0
+                    mask = episode_mask.unsqueeze(1).expand(-1, ep_len, -1)
+                else:
+                    mask = th.ones_like(agent_qs)
+                    for b in range(bs):
+                        for t in range(ep_len):
+                            idx = th.randperm(self.n_agents)[:mask_k]
+                            mask[b, t, idx] = 0.0
             else:
-                mask = (
-                    th.rand(agent_qs.shape, device=agent_qs.device) > self.mask_prob
-                ).float()
-            # print(f"is sticky {self.is_sticky}")
-            # print(f"sk: {mask}")
+                # Probabilistic masking: mask each agent independently with mask_prob
+                if self.is_sticky:
+                    episode_mask = (
+                        th.rand(bs, self.n_agents, device=agent_qs.device) > self.mask_prob
+                    ).float()
+                    mask = episode_mask.unsqueeze(1).expand(-1, ep_len, -1)
+                else:
+                    mask = (
+                        th.rand(agent_qs.shape, device=agent_qs.device) > self.mask_prob
+                    ).float()
+            print(f"is sticky {self.is_sticky}")
+            print(f"is fixed {self.is_fixed}")
+            print(f"mask: {mask}")
             agent_qs = agent_qs * mask
+
         agent_qs = agent_qs.view(-1, 1, self.n_agents)
 
         # First layer
