@@ -3,6 +3,7 @@
 MAX_JOBS=${1:-2}
 YAML_FILE="queue.yaml"
 
+conda init
 conda activate pymarl-venv
 mkdir -p logs
 
@@ -16,18 +17,26 @@ with open("$YAML_FILE") as f:
 for i, exp in enumerate(data.get('experiments', [])):
     try:
         config = exp['config']
-        map_name = exp['map_name']
-        mask_prob = exp['mask_prob']
-        is_sticky = exp['is_sticky']
-    except KeyError as e:
-        print(f"# Skipping experiment $i: missing key {e}", flush=True)
+    except KeyError:
+        print(f"# Skipping experiment {i}: missing 'config'", flush=True)
         continue
 
-    cmd = f"python3 src/main.py --config={config} --env-config=sc2 with env_args.map_name={map_name} mask_prob={mask_prob} is_sticky={is_sticky} \n"
-    # cmd = "echo 44 && sleep 6 \n"
+    env_args = exp.get('env_args', {})
+    other_args = {k: v for k, v in exp.items() if k not in ['config', 'env_args']}
+
+    def to_cli_args(d, prefix=""):
+        args = []
+        for k, v in d.items():
+            val = str(v).lower() if isinstance(v, bool) else v
+            args.append(f"{prefix}{k}={val}")
+        return args
+
+    all_args = to_cli_args(other_args) + to_cli_args(env_args, prefix="env_args.")
+    cmd = f"python3 src/main.py --config={config} --env-config=sc2 with {' '.join(all_args)} \n"
     print(cmd)
 EOF
 )
+
 
 # Loop through commands, queue jobs
 while IFS= read -r CMD; do
