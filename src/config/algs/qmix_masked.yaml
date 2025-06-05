@@ -31,4 +31,8 @@ is_sticky: False
 # same mask for in the same episode
 is_fixed: False
 
+no_state: False
+
+local_obs_instead_of_state: False
+
 name: "qmix_masked"
