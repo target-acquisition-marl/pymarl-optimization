@@ -8,6 +8,7 @@ from types import SimpleNamespace as SN
 from utils.logging import Logger
 from utils.timehelper import time_left, time_str
 from os.path import dirname, abspath
+import random
 
 from learners import REGISTRY as le_REGISTRY
 from runners import REGISTRY as r_REGISTRY
@@ -32,8 +33,8 @@ def run(_run, _config, _log):
     _log.info("\n\n" + experiment_params + "\n")
 
     # configure tensorboard logger
-    unique_token = "{}__{}".format(
-        args.name, datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    unique_token = "{}__{}_{}".format(
+        args.name, datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"), random.randint(0, 9999)
     )
     args.unique_token = unique_token
     if args.use_tensorboard:
@@ -46,8 +47,14 @@ def run(_run, _config, _log):
     # setup wandb
     if args.use_wandb:
         # scenario_name = '{}_{}'.format(args.env_args['map_name'], unique_token)
-        scenario_name = "{}_{}%masking_sticky:{}_fixed:{}_{}".format(
-            args.env_args["map_name"], args.mask_prob, args.is_sticky, args.is_fixed, unique_token
+        sticky = "Sticky" if args.is_sticky else "NonSticky"
+        fixed = "Fixed" if args.is_fixed else "NonFixed"
+        # no_state = "NoState" if args.no_state else "State"
+        local_obs = "ConcatLocalObs" if args.local_obs_instead_of_state else "FullState"
+        print(f"args.is_sticky: {type(args.is_sticky)}")
+        print(sticky)
+        scenario_name = "{}_{}%masking_{}_{}_{}_{}".format(
+            args.env_args["map_name"], args.mask_prob, sticky, fixed, local_obs, unique_token
         )
         project_name = args.project_name
         logger.setup_wandb(project_name, scenario_name)

@@ -27,7 +27,8 @@ for i, exp in enumerate(data.get('experiments', [])):
     def to_cli_args(d, prefix=""):
         args = []
         for k, v in d.items():
-            val = str(v).lower() if isinstance(v, bool) else v
+            # val = str(v).lower() if isinstance(v, bool) else v
+            val = v
             args.append(f"{prefix}{k}={val}")
         return args
 
@@ -53,4 +54,3 @@ done <<< "$COMMANDS"
 
 wait
 echo "All experiments completed."
-
