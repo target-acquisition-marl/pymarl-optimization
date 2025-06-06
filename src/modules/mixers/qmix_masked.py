@@ -19,8 +19,7 @@ class MaskedQMixer(nn.Module):
         self.no_state = args.no_state
         self.local_obs_instead_of_state = args.local_obs_instead_of_state
 
-        print(f"state_dim: {self.state_dim}")  # #########
-        print(50*"-")
+        # print(f"state_dim: {self.state_dim}")
         if getattr(args, "hypernet_layers", 1) == 1:
             self.hyper_w_1 = nn.Linear(self.state_dim, self.embed_dim * self.n_agents)
             self.hyper_w_final = nn.Linear(self.state_dim, self.embed_dim)
@@ -87,23 +86,23 @@ class MaskedQMixer(nn.Module):
             # print(f"mask: {mask}")
             agent_qs = agent_qs * mask
 
+            # Using the same mask for state masking
+            flat_mask = mask.reshape(-1, self.n_agents)  # shape: (bs * ep_len, n_agents)
+
+            if self.local_obs_instead_of_state:
+                # print(f"agent 0 is masked? :{flat_mask[0][0] == 0}")
+                # states.shape: bs * ep_len, state_dim
+                # print(f"Unmasked state for agt 0 at t=0: {states[0][0]}")
+                obs_dim = self.state_dim // self.n_agents
+                # Reshape state: (bs * ep_len, n_agents, obs_dim)
+                states = states.view(-1, self.n_agents, obs_dim)
+                # Apply mask: (bs * ep_len, n_agents, 1)
+                states = states * flat_mask.unsqueeze(-1)
+                # Flatten back to (bs * ep_len, state_dim)
+                states = states.view(-1, self.state_dim)
+                # print(f"Masked state for agt 0 at t=0: {states[0][0]}")
+
         agent_qs = agent_qs.view(-1, 1, self.n_agents)
-
-        # Using the same mask for state masking
-        flat_mask = mask.reshape(-1, self.n_agents)  # shape: (bs * ep_len, n_agents)
-
-        if self.local_obs_instead_of_state:
-            # print(f"agent 0 is masked? :{flat_mask[0][0] == 0}")
-            # states.shape: bs * ep_len, state_dim
-            # print(f"Unmasked state for agt 0 at t=0: {states[0][0]}")
-            obs_dim = self.state_dim // self.n_agents
-            # Reshape state: (bs * ep_len, n_agents, obs_dim)
-            states = states.view(-1, self.n_agents, obs_dim)
-            # Apply mask: (bs * ep_len, n_agents, 1)
-            states = states * flat_mask.unsqueeze(-1)
-            # Flatten back to (bs * ep_len, state_dim)
-            states = states.view(-1, self.state_dim)
-            # print(f"Masked state for agt 0 at t=0: {states[0][0]}")
 
         # First layer
         w1 = th.abs(self.hyper_w_1(states))
