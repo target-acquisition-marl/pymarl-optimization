@@ -33,6 +33,7 @@ is_fixed: False
 
 no_state: False
 
-local_obs_instead_of_state: False
+# local_obs_instead_of_state: False
+masked_local_obs: False # Can be True only if env_args.obs_instead_of_state is True
 
 name: "qmix_masked"

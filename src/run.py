@@ -50,11 +50,20 @@ def run(_run, _config, _log):
         sticky = "Sticky" if args.is_sticky else "NonSticky"
         fixed = "Fixed" if args.is_fixed else "NonFixed"
         # no_state = "NoState" if args.no_state else "State"
-        local_obs = "ConcatLocalObs" if args.local_obs_instead_of_state else "FullState"
+        map_name = args.env_args["map_name"]
+        obs_instead_of_state = args.env_args["obs_instead_of_state"]
+        if obs_instead_of_state :
+            if args.masked_local_obs:
+                state_description = "MaskedConcatObservations"
+            else:
+                state_description = "ConcatObservations"
+        else:
+            state_description = "FullState"
         print(f"args.is_sticky: {type(args.is_sticky)}")
+        
         print(sticky)
         scenario_name = "{}_{}%masking_{}_{}_{}_{}".format(
-            args.env_args["map_name"], args.mask_prob, sticky, fixed, local_obs, unique_token
+            map_name, args.mask_prob, sticky, fixed, state_description, unique_token
         )
         project_name = args.project_name
         logger.setup_wandb(project_name, scenario_name)

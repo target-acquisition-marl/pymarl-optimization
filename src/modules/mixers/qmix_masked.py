@@ -17,7 +17,7 @@ class MaskedQMixer(nn.Module):
         self.is_sticky = args.is_sticky
         self.is_fixed = args.is_fixed
         self.no_state = args.no_state
-        self.local_obs_instead_of_state = args.local_obs_instead_of_state
+        self.masked_local_obs = args.masked_local_obs
 
         # print(f"state_dim: {self.state_dim}")
         if getattr(args, "hypernet_layers", 1) == 1:
@@ -89,7 +89,7 @@ class MaskedQMixer(nn.Module):
             # Using the same mask for state masking
             flat_mask = mask.reshape(-1, self.n_agents)  # shape: (bs * ep_len, n_agents)
 
-            if self.local_obs_instead_of_state:
+            if self.masked_local_obs:
                 # print(f"agent 0 is masked? :{flat_mask[0][0] == 0}")
                 # states.shape: bs * ep_len, state_dim
                 # print(f"Unmasked state for agt 0 at t=0: {states[0][0]}")

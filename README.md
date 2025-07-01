@@ -33,15 +33,8 @@ Introduced masking mechanisms for agent Q-values before mixing:
   - random masking: agents' Q-values are randomly masked at each timestep with a given probability.
 
 ```shell
-python3 src/main.py --config=qmix_masked --env-config=sc2 with env_args.map_name=2s3z mask_prob=0.2
+python3 src/main.py --config=qmix_masked --env-config=sc2 with mask_prob=0.5 masked_local_obs=False is_sticky=False is_fixed=False env_args.map_name=3s5z env_args.obs_instead_of_state=True 
 ```
-  - sticky masking: each episode has a fixed binary mask applied across all its timesteps. To do so, simply use the is_sticky flag
-
-```shell
-python3 src/main.py --config=qmix_masked --env-config=sc2 with env_args.map_name=2s3z mask_prob=0.2 is_sticky=True
-```
-
-Sure! Here's a concise markdown section you can add to your README to explain this YAML-based queued experiment runner feature:
 
 ## Experiment Queue with YAML Configuration
 

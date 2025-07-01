@@ -1,15 +1,31 @@
 experiments:
+# Full-state
   - config: qmix_masked
-    map_name: 1c3s5z
-    mask_prob: 0
-    is_sticky: false
+    env_args:
+      map_name: 3s5z
+      obs_instead_of_state: False
+    mask_prob: 0.5
+    masked_local_obs: False
+    is_sticky: False
+    is_fixed: False
 
-  - config: qmix_masked
-    map_name: 1c3s5z
-    mask_prob: 0.6
-    is_sticky: false
 
+#  Concatenated_local_obs_instead_of_state
   - config: qmix_masked
-    map_name: 1c3s5z
-    mask_prob: 0.6
-    is_sticky: true
+    env_args:
+      map_name: 3s5z
+      obs_instead_of_state: True
+    mask_prob: 0.5
+    masked_local_obs: False
+    is_sticky: False
+    is_fixed: False
+
+# Concatenated_local_obs_masked_instead_of_state
+  - config: qmix_masked
+    env_args:
+      map_name: 3s5z
+      obs_instead_of_state: True
+    mask_prob: 0.5
+    masked_local_obs: True
+    is_sticky: False
+    is_fixed: False
